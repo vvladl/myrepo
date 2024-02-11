@@ -1,0 +1,10 @@
+body {
+    font-size: 15pt;
+    margin: 0px;
+}
+canvas{
+  background: black;
+}
+h1{
+  color: red;
+}
