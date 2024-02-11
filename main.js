@@ -1,51 +1,12 @@
 const canvas = document.querySelector('canvas')
+const c = canvas.getContext('2d')
 canvas.width = innerWidth;
 canvas.height = innerHeight;
-let centerX = innerWidth / 2
-let centerY = innerHeight / 2
 const DPI = Math.PI * 2
 const sw = 10 // scene width 
 const sh = 10 // scene height
 const bd = 40 // block dimension 
 const pi = Math.PI
-
-const c = canvas.getContext('2d')
-/* 
-
-let balls = new Array(50)
-let countClick = 0
-
-function drawBalls() {
-  balls.forEach((b) => {
-    b.draw()
-  })
-}
-
-class Ball {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-    this.color = 'red'
-    this.l = String.fromCharCode(Math.floor(Math.random() * 94 + 33))
-  }
-  draw() {
-    if (this.x < canvas.width && this.y < canvas.height && this.x > 0 && this.y > 0) {
-      this.y -= 5
-      c.fillStyle = this.color
-      c.font = '48px monospace'
-      c.fillText(this.l, this.x, this.y)
-    }
-  }
-}
-
-balls.fill(new Ball(0, 0))
-
-addEventListener('click', (ev) => {
-  balls[countClick] = new Ball(ev.clientX, ev.clientY)
-  countClick += 1
-  if (countClick == 50) countClick = 0
-})
-*/
 
 let scene = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -61,71 +22,60 @@ let scene = [
 ]
 
 const me = {
-  x: 145,
-  y: 60,
+  x: 5 * bd + 30,
+  y: 5 * bd + 15,
   d: 1,
   draw: function drawMe() {
     c.fillStyle = 'blue'
     c.fillRect(this.x - 2, this.y - 2, 4, 4)
   }
-
 }
 
-function drawRay(l) {
-  let vx = me.x + Math.cos(me.d) * l
-  let vy = me.y + Math.sin(me.d) * l
-  let i = Math.floor(vy/ bd)
-  let j = Math.floor(vx/ bd)
+function drawRay(point) {
   c.beginPath()
   c.strokeStyle = 'white'
   c.moveTo(me.x, me.y)
-  c.lineTo(vx, vy)
+  c.lineTo(point.x, point.y)
   c.stroke()
   c.beginPath()
-  if (scene[i][j] == 1)
-    c.strokeStyle = 'red'
-  else c.strokeStyle = 'white'
-  c.arc(vx, vy, 2, 0, 6.28)
+  c.strokeStyle = 'red'
+  c.arc(point.x, point.y, 2, 0, 6.28)
   c.stroke()
-}
-
-const point = {
-  x: 0,
-  y: 0
-}
-
-class Vector {
-  constructor(x, y) {
-    this.x = x
-    this.y = y
-  }
-}
-
-function sumVec(v1, v2) {
-  return new Vector(v1.x + v2.x, v1.y + v2.y)
-
 }
 
 function entersaction() {
-  let dx, dy, ddx, ddy
-  let ax = Math.floor(me.x / bd)
-  let ay = Math.floor(me.y / bd)
-  if (me.d >= pi && me.d < 2 * pi) {
-    dy = ay * bd - me.y
-  } else {
-    dy = (ay + 1) * bd - me.y
-  }
-  if (me.d >= pi / 2 && me.d < 3 / 2 * pi) {
-    dx = (ax ) * bd - me.x
-  } else {
-    dx = (ax+1) * bd - me.x
-  }
+  let dx, dy, ddx, ddy, dd_temp
 
-  ddy = Math.abs(dy / Math.sin(me.d))+1
-  ddx = Math.abs(dx / Math.cos(me.d))+1
+  let i = Math.floor(me.y / bd)
+  let j = Math.floor(me.x / bd)
+  let vx = me.x, vy = me.y, dd = 0
 
-  if (ddx < ddy) return ddx
-  else return ddy
+  while (true) {
+
+    if (me.d >= pi && me.d < 2 * pi) {
+      dy = i * bd - vy
+    } else {
+      dy = (i + 1) * bd - vy
+    }
+    if (me.d >= pi / 2 && me.d < 3 / 2 * pi) {
+      dx = j * bd - vx
+    } else {
+      dx = (j + 1) * bd - vx
+    }
+
+    ddy = Math.abs(dy / Math.sin(me.d)) + 1
+    ddx = Math.abs(dx / Math.cos(me.d)) + 1
+
+    dd_temp = (ddx < ddy) ? ddx : ddy
+    vx += Math.cos(me.d) * dd_temp
+    vy += Math.sin(me.d) * dd_temp
+    i = Math.floor(vy / bd)
+    j = Math.floor(vx / bd)
+    dd += dd_temp
+    if (scene[i][j] == 1) {
+      return { x: vx, y: vy }
+    }
+  }
 }
 
 function drawScene() {
@@ -154,8 +104,6 @@ addEventListener('click', e => {
 })
 
 
-
-
 function frames() {
   c.clearRect(0, 0, canvas.width, canvas.height)
   // drawBalls()
@@ -166,11 +114,3 @@ function frames() {
 }
 
 frames()
-/* drawScene()
-for (let index = 0; index < 2 * pi; index += 0.05) {
-  me.d = index
-  drawRay(entersaction())
-
-}
- */
- 
