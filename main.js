@@ -2,12 +2,12 @@ const canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
 canvas.width = innerWidth;
 canvas.height = innerHeight;
-const DPI = Math.PI * 2
+const dpi = Math.PI * 2
 const sw = 10 // scene width 
 const sh = 10 // scene height
 const bd = 40 // block dimension 
 const pi = Math.PI
-
+const anv =20 // angle of view 
 let scene = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
@@ -16,7 +16,7 @@ let scene = [
   [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
   [1, 0, 0, 0, 0, 0, 1, 0, 0, 1],
   [1, 0, 0, 0, 0, 0, 1, 0, 0, 1],
-  [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 1, 1, 0, 0, 0, 0, 0, 1],
   [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 ]
@@ -39,36 +39,38 @@ function drawRay(point) {
   c.stroke()
   c.beginPath()
   c.strokeStyle = 'red'
-  c.arc(point.x, point.y, 2, 0, 6.28)
+  c.arc(point.x, point.y, 2, 0, dpi)
   c.stroke()
 }
 
-function entersaction() {
+function entersaction(angle) {
   let dx, dy, ddx, ddy, dd_temp
 
   let i = Math.floor(me.y / bd)
   let j = Math.floor(me.x / bd)
-  let vx = me.x, vy = me.y, dd = 0
+  let vx = me.x,
+    vy = me.y,
+    dd = 0
 
   while (true) {
 
-    if (me.d >= pi && me.d < 2 * pi) {
+    if (angle >= pi && angle < dpi) {
       dy = i * bd - vy
     } else {
       dy = (i + 1) * bd - vy
     }
-    if (me.d >= pi / 2 && me.d < 3 / 2 * pi) {
+    if (angle >= pi / 2 && angle < 3 / 2 * pi) {
       dx = j * bd - vx
     } else {
       dx = (j + 1) * bd - vx
     }
 
-    ddy = Math.abs(dy / Math.sin(me.d)) + 1
-    ddx = Math.abs(dx / Math.cos(me.d)) + 1
+    ddy = Math.abs(dy / Math.sin(angle)) + 1
+    ddx = Math.abs(dx / Math.cos(angle)) + 1
 
     dd_temp = (ddx < ddy) ? ddx : ddy
-    vx += Math.cos(me.d) * dd_temp
-    vy += Math.sin(me.d) * dd_temp
+    vx += Math.cos(angle) * dd_temp
+    vy += Math.sin(angle) * dd_temp
     i = Math.floor(vy / bd)
     j = Math.floor(vx / bd)
     dd += dd_temp
@@ -100,16 +102,17 @@ addEventListener('click', e => {
 
   if (dx < 0 && dy < 0) me.d += pi
   if (dx < 0 && dy > 0) me.d += pi
-  if (dx > 0 && dy < 0) me.d = 2 * pi + me.d
+  if (dx > 0 && dy < 0) me.d = dpi + me.d
 })
 
 
 function frames() {
   c.clearRect(0, 0, canvas.width, canvas.height)
-  // drawBalls()
   drawScene()
   me.draw()
-  drawRay(entersaction())
+  for (let i = -anv; i < anv; i++) {
+    drawRay(entersaction(me.d + 0.02 * i))
+  }
   requestAnimationFrame(frames)
 }
 
