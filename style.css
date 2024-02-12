@@ -1,10 +1,14 @@
 body {
-    font-size: 15pt;
-    margin: 0px;
+  font-size: 15pt;
+  margin: 0px;
 }
-canvas{
+
+canvas {
   background: black;
 }
-h1{
-  color: red;
+
+button {
+  font-size: medium;
+  width: 100px;
+  margin: 15px;
 }
