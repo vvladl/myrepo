@@ -1,14 +1,21 @@
 body {
   font-size: 15pt;
   margin: 0px;
+  text-align: center;
 }
 
 canvas {
   background: black;
 }
-
+#buttons{
+  margin-top:50px;
+  display: flex;
+  flex-wrap: wrap;
+justify-content: space-around;
+}
 button {
   font-size: medium;
-  width: 100px;
-  margin: 15px;
+  width: 80px;
+  
+  
 }

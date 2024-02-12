@@ -29,10 +29,10 @@ let scene = [
 const me = {
   x: 5 * bd + 30,
   y: 5 * bd + 15,
-  d: 1,            // direction
-  v: 0.2,          // speed
-  go: false,       // go or stop
-  draw: function () {
+  d: 1, // direction
+  v: 0.2, // speed
+  go: false, // go or stop
+  draw: function() {
     c.fillStyle = 'blue'
     if (this.go) {
       this.x += this.v * Math.cos(this.d)
@@ -86,7 +86,10 @@ function entersaction(angle) {
     j = Math.floor(vx / bd)
     dd += dd_temp
     if (scene[i][j] == 1) {
-      if ((angle == me.d) && (dd_temp < 5)) me.go = false
+      if ((angle == me.d) && (dd_temp < 5)) {
+        me.go = false
+        b_go.innerText = 'Go'
+      }
       return { x: vx, y: vy }
     }
   }
