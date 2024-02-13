@@ -7,15 +7,15 @@ body {
 canvas {
   background: black;
 }
+
 #buttons{
-  margin-top:50px;
+  margin-top:20px;
   display: flex;
   flex-wrap: wrap;
 justify-content: space-around;
 }
+
 button {
   font-size: medium;
   width: 80px;
-  
-  
 }
