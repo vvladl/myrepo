@@ -17,9 +17,9 @@ const sw = 10 // scene width
 const sh = 10 // scene height
 const bd = 35 // block dimension 
 const pi = Math.PI
-const anv = 20// angle of view 
+const anv = 30// angle of view 
 const bh = canvas2.height/2// height of block
-const cd = bh * 2 // camera distans
+// const cd = bh * 2 // camera distans
 const center = canvas2.height / 2
 let scene = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -167,15 +167,17 @@ function drawView(x,y, a) {
   let dx=x-me.x
   let dy=y-me.y
   let d=Math.sqrt(dx*dx+dy*dy)
-  let dh = bh * (cd - d) / cd
-  let dg = d * Math.tan(a)*3
+  let dh = 3000 /d
+  let dg = 300 * Math.tan(a)
 
   c2.beginPath()
   c2.moveTo(center + dg, center + dh)
   c2.lineTo(center + dg, center - dh)
   c2.strokeStyle = 'blue'
-
   c2.stroke()
+}
+function fillReg(){
+  
 }
 
 function frames() {
@@ -183,12 +185,12 @@ function frames() {
   c2.clearRect(0, 0, canvas2.width, canvas2.height)
   drawScene()
   me.draw()
-  for (let i = -anv; i < anv; i++) {
-    let a = me.d + 0.02 * i
-    let p = entersaction(a)
+  // for (let i = -anv; i < anv; i++) {
+   //  let a = me.d + 0.03 * i
+    let p = entersaction(me.d)
     drawRay(p.x, p.y)
-    drawView(p.x, p.y ,0.02 * i)
-  }
+    drawView(p.x, p.y ,0)
+  // }
 
   requestAnimationFrame(frames)
 }
