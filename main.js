@@ -16,7 +16,6 @@ const sh = 10 // scene height
 const bd = 32 // block dimension 
 const f = 300
 let t = 0
-let v = 0.1 // speed 
 
 canvas.width =
   canvas.height =
@@ -41,7 +40,7 @@ const me = {
   x: 5 * bd + 20,
   y: 5 * bd + 15,
   d: 1, // direction
-  v: v, // speed
+  v: 0.2, // speed
   go: false, // go or stop
   draw: function() {
     c.fillStyle = 'blue'
@@ -52,46 +51,6 @@ const me = {
     c.fillRect(this.x - 2, this.y - 2, 4, 4)
   }
 }
-
-class Point {
-  constructor(x, y) {
-    this.x = x
-    this.y = y
-  }
-  add(x, y) {
-    this.x += x
-    this.y += y
-  }
-  static add(a, b) {
-    return (new Point(a.x + b.x, a.y + b.y))
-  }
-}
-
-class Block {
-  constructor(point, color) {
-    this.p0 = point
-    this.p1 = new Point(point.x + bd, point.y)
-    this.p2 = new Point(point.x + bd, point.y + bd)
-    this.p3 = new Point(point.x, point.y + bd)
-    this.color = color
-  }
-}
-
-let b_scene = new Array()
-
-function init() {
-  scene.forEach((r, i) => {
-    let b = new Array()
-    r.forEach((e, j) => {
-      if (e == 1) {
-        b.push(new Block(new Point(j * bd, i * bd), 'green'))
-      }
-      else { b.push(0) }
-    })
-    b_scene.push(b)
-  })
-}
-// init()
 
 function drawRay(x, y) {
   c.beginPath()
@@ -144,7 +103,7 @@ function entersaction(angle) {
         b_go.innerText = 'Go'
       }
       if ((angle == me.d)) drawRay(vx, vy)
-      if (Math.floor(vy % bd) ==0 || Math.ceil(vy%bd)==bd)xs = true
+      if (Math.floor(vy % bd) == 0 || Math.ceil(vy % bd) == bd) xs = true
       else xs = false
 
       return { d: d, xs: xs }
@@ -155,7 +114,7 @@ function entersaction(angle) {
 function drawView() {
 
   let dg, dh, da, d, dt, xs
-  for (var i = -150; i < 150; i += 1) {
+  for (var i = -150; i < 150; i++) {
     dt = Math.atan2(i, f)
     da = me.d + dt
     d = entersaction(da)
@@ -165,9 +124,6 @@ function drawView() {
     c2.beginPath()
     c2.moveTo(center + i, center - dh)
     c2.lineTo(center + i, center + dh)
-    // c2.moveTo(center + i + 1, center - dh)
-    // c2.lineTo(center + i + 1, center + dh)
-
     c2.stroke()
 
   }
