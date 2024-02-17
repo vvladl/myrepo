@@ -1,25 +1,28 @@
 const canvas = document.getElementById('canvas')
 const c = canvas.getContext('2d')
-canvas.width = 350;
-canvas.height = 350;
 
 const canvas2 = document.getElementById('canvas2')
 const c2 = canvas2.getContext('2d')
-canvas2.width = 350;
-canvas2.height = 350;
 
 const b_go = document.getElementById('go')
 const b_left = document.getElementById('left')
 const b_right = document.getElementById('right')
 
 const dpi = Math.PI * 2
+const pi = Math.PI
+const hpi = Math.PI / 2
 const sw = 10 // scene width 
 const sh = 10 // scene height
-const bd = 35 // block dimension 
-const pi = Math.PI
-const anv = 30// angle of view 
-const bh = canvas2.height/2// height of block
-// const cd = bh * 2 // camera distans
+const bd = 32 // block dimension 
+const f = 300
+let t = 0
+let v = 0.1 // speed 
+
+canvas.width =
+  canvas.height =
+  canvas2.width =
+  canvas2.height = bd * 10
+
 const center = canvas2.height / 2
 let scene = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -38,7 +41,7 @@ const me = {
   x: 5 * bd + 20,
   y: 5 * bd + 15,
   d: 1, // direction
-  v: 0.2, // speed
+  v: v, // speed
   go: false, // go or stop
   draw: function() {
     c.fillStyle = 'blue'
@@ -49,6 +52,46 @@ const me = {
     c.fillRect(this.x - 2, this.y - 2, 4, 4)
   }
 }
+
+class Point {
+  constructor(x, y) {
+    this.x = x
+    this.y = y
+  }
+  add(x, y) {
+    this.x += x
+    this.y += y
+  }
+  static add(a, b) {
+    return (new Point(a.x + b.x, a.y + b.y))
+  }
+}
+
+class Block {
+  constructor(point, color) {
+    this.p0 = point
+    this.p1 = new Point(point.x + bd, point.y)
+    this.p2 = new Point(point.x + bd, point.y + bd)
+    this.p3 = new Point(point.x, point.y + bd)
+    this.color = color
+  }
+}
+
+let b_scene = new Array()
+
+function init() {
+  scene.forEach((r, i) => {
+    let b = new Array()
+    r.forEach((e, j) => {
+      if (e == 1) {
+        b.push(new Block(new Point(j * bd, i * bd), 'green'))
+      }
+      else { b.push(0) }
+    })
+    b_scene.push(b)
+  })
+}
+// init()
 
 function drawRay(x, y) {
   c.beginPath()
@@ -63,13 +106,13 @@ function drawRay(x, y) {
 }
 
 function entersaction(angle) {
-  let dx, dy, ddx, ddy, dd_temp
+  let dx, dy, ddx, ddy, dd_temp, d, xs
 
   let i = Math.floor(me.y / bd)
   let j = Math.floor(me.x / bd)
   let vx = me.x,
     vy = me.y,
-    dd=0
+    dd = 0
 
   while (true) {
 
@@ -88,18 +131,45 @@ function entersaction(angle) {
     ddx = Math.abs(dx / Math.cos(angle)) + 1
 
     dd_temp = (ddx < ddy) ? ddx : ddy
+
     vx += Math.cos(angle) * dd_temp
     vy += Math.sin(angle) * dd_temp
     i = Math.floor(vy / bd)
     j = Math.floor(vx / bd)
+
     if (scene[i][j] == 1) {
-      if ((angle == me.d) && (dd_temp < 5)) {
+      d = Math.hypot(vx - me.x - 1, vy - me.y - 1)
+      if ((angle == me.d) && (d < 4)) {
         me.go = false
         b_go.innerText = 'Go'
       }
+      if ((angle == me.d)) drawRay(vx, vy)
+      if (Math.floor(vy % bd) ==0 || Math.ceil(vy%bd)==bd)xs = true
+      else xs = false
 
-      return { x: vx, y: vy}
+      return { d: d, xs: xs }
     }
+  }
+}
+
+function drawView() {
+
+  let dg, dh, da, d, dt, xs
+  for (var i = -150; i < 150; i += 1) {
+    dt = Math.atan2(i, f)
+    da = me.d + dt
+    d = entersaction(da)
+    if (d.xs) c2.strokeStyle = 'green'
+    else c2.strokeStyle = `rgb(0 222 0)`
+    dh = 0.5 * bd * (f / (d.d * Math.sin(dt + hpi)))
+    c2.beginPath()
+    c2.moveTo(center + i, center - dh)
+    c2.lineTo(center + i, center + dh)
+    // c2.moveTo(center + i + 1, center - dh)
+    // c2.lineTo(center + i + 1, center + dh)
+
+    c2.stroke()
+
   }
 }
 
@@ -109,10 +179,6 @@ function drawScene() {
       if (scene[i][j] == 1) {
         c.fillStyle = 'green'
         c.fillRect(j * bd, i * bd, bd - 1, bd - 1)
-      }
-      else {
-        c.strokeStyle = 'white'
-        c.strokeRect(j * bd, i * bd, bd, bd)
       }
     }
   }
@@ -163,35 +229,12 @@ addEventListener('keydown', e => {
   }
 })
 
-function drawView(x,y, a) {
-  let dx=x-me.x
-  let dy=y-me.y
-  let d=Math.sqrt(dx*dx+dy*dy)
-  let dh = 3000 /d
-  let dg = 300 * Math.tan(a)
-
-  c2.beginPath()
-  c2.moveTo(center + dg, center + dh)
-  c2.lineTo(center + dg, center - dh)
-  c2.strokeStyle = 'blue'
-  c2.stroke()
-}
-function fillReg(){
-  
-}
-
 function frames() {
   c.clearRect(0, 0, canvas.width, canvas.height)
   c2.clearRect(0, 0, canvas2.width, canvas2.height)
   drawScene()
   me.draw()
-  // for (let i = -anv; i < anv; i++) {
-   //  let a = me.d + 0.03 * i
-    let p = entersaction(me.d)
-    drawRay(p.x, p.y)
-    drawView(p.x, p.y ,0)
-  // }
-
+  drawView()
   requestAnimationFrame(frames)
 }
 
