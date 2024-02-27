@@ -13,15 +13,15 @@ const pi = Math.PI
 const hpi = Math.PI / 2
 const sw = 10 // scene width 
 const sh = 10 // scene height
-const bd = 32 // block dimension 
+const bd = 64 // block dimension 
 const f = 300
 let t = 0
-
+let img = new Image()
+img.src = 'img.png'
 canvas.width =
   canvas.height =
   canvas2.width =
   canvas2.height = bd * 10
-
 const center = canvas2.height / 2
 let scene = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -65,8 +65,7 @@ function drawRay(x, y) {
 }
 
 function entersaction(angle) {
-  let dx, dy, ddx, ddy, dd_temp, d, xs
-
+  let dx, dy, ddx, ddy, dd_temp, d, xs, db
   let i = Math.floor(me.y / bd)
   let j = Math.floor(me.x / bd)
   let vx = me.x,
@@ -98,15 +97,24 @@ function entersaction(angle) {
 
     if (scene[i][j] == 1) {
       d = Math.hypot(vx - me.x - 1, vy - me.y - 1)
-      if ((angle == me.d) && (d < 4)) {
-        me.go = false
-        b_go.innerText = 'Go'
+      if (angle == me.d) {
+        drawRay(vx, vy)
+        if (d < 4) {
+          me.go = false
+          b_go.innerText = 'Go'
+        }
       }
-      if ((angle == me.d)) drawRay(vx, vy)
-      if (Math.floor(vy % bd) == 0 || Math.ceil(vy % bd) == bd) xs = true
-      else xs = false
-
-      return { d: d, xs: xs }
+      let by = vy % bd
+      let bx = vx % bd
+      if (Math.floor(by) == 0 || Math.ceil(by) == bd) {
+        xs = true
+        db = bx
+      }
+      else {
+        xs = false
+        db = by
+      }
+      return { d: d, xs: xs, db: db }
     }
   }
 }
@@ -114,17 +122,20 @@ function entersaction(angle) {
 function drawView() {
 
   let dg, dh, da, d, dt, xs
-  for (var i = -150; i < 150; i++) {
+  for (var i = -center; i < center; i++) {
     dt = Math.atan2(i, f)
     da = me.d + dt
     d = entersaction(da)
     if (d.xs) c2.strokeStyle = `green`
     else c2.strokeStyle = `rgb(0 200 0)`
     dh = 0.5 * bd * (f / (d.d * Math.sin(dt + hpi)))
+    c2.drawImage(img, d.db, 0, 1, bd, center + i, center - dh, 1, 2 * dh)
+    /* 
     c2.beginPath()
     c2.moveTo(center + i, center - dh)
     c2.lineTo(center + i, center + dh)
     c2.stroke()
+        */
   }
 }
 
@@ -183,21 +194,21 @@ addEventListener('keydown', e => {
       break;
   }
 })
-let ot=Date.now()
-let nt,dt
+let ot = Date.now()
+let nt, dt
+
 function frames() {
-  let nt=Date.now()
-  dt=nt-ot
-  ot=nt
-  
+  let nt = Date.now()
+  dt = nt - ot
+  ot = nt
+
   c.clearRect(0, 0, canvas.width, canvas.height)
   c2.clearRect(0, 0, canvas2.width, canvas2.height)
   drawScene()
   me.draw()
   drawView()
-  c.fillStyle ='white'
-  c.fillText(`vps: ${Math.floor(dt)}`,35,280)
-
+  c.fillStyle = 'white'
+  c.fillText(`vps: ${Math.floor(dt)}`, 35, 280)
   requestAnimationFrame(frames)
 }
 
